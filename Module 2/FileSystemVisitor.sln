@@ -5,6 +5,8 @@ VisualStudioVersion = 15.0.28010.2036
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileSystemVisitor", "FileSystemVisitor\FileSystemVisitor.csproj", "{79FE7B5C-645D-4CD8-A1B3-4BEADA1855B1}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileSystemVisitorTest", "FileSystemVisitorTest\FileSystemVisitorTest.csproj", "{8477019C-E3FC-45CC-87AD-186F433A26DC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{79FE7B5C-645D-4CD8-A1B3-4BEADA1855B1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{79FE7B5C-645D-4CD8-A1B3-4BEADA1855B1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{79FE7B5C-645D-4CD8-A1B3-4BEADA1855B1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8477019C-E3FC-45CC-87AD-186F433A26DC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8477019C-E3FC-45CC-87AD-186F433A26DC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8477019C-E3FC-45CC-87AD-186F433A26DC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8477019C-E3FC-45CC-87AD-186F433A26DC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

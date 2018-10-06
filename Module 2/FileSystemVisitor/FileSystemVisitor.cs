@@ -1,30 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 
 namespace FileSystemVisitor
 {
-    public enum ActionToDo
-    {
-        Continue = 1,
-        StopSearch = 2,
-        SkipObject = 3
-    }
-
-    public class StartEventArgs : EventArgs
-    {
-    }
-
-    public class FinishEventArgs : EventArgs
-    {
-    }
-
-    public class ItemFoundEventArgs<T> : EventArgs where T : FileSystemInfo
-    {
-    }
-
-    public class FileSystemVisitor
+    public class FileSystemVisitor: IFileSystemVisitor
     {
         private DirectoryInfo _rootDir;
         private Func<FileSystemInfo, bool> _filter;
@@ -35,11 +15,6 @@ namespace FileSystemVisitor
         public event EventHandler<ItemFoundEventArgs<FileInfo>> FilteredFileFinded;
         public event EventHandler<ItemFoundEventArgs<DirectoryInfo>> DirectoryFinded;
         public event EventHandler<ItemFoundEventArgs<DirectoryInfo>> FilteredDirectoryFinded;
-
-        private void OnEvent<T>(EventHandler<T> Event, T args)
-        {
-            Event?.Invoke(this, args);
-        }
 
         public FileSystemVisitor(string rootPath)
         {
@@ -58,36 +33,50 @@ namespace FileSystemVisitor
             _filter = filter;
         }
 
-        public IEnumerable<FileSystemInfo> GetFileSystemTree(ActionToDo action)
+        public IEnumerable<FileSystemInfo> GetFileSystemTree()
         {
             OnEvent(Start, new StartEventArgs());
-            if (_filter == null)
+
+            ActionToDo currentAction;
+
+            foreach (var fsObject in GetFsObject(_rootDir))
             {
-                foreach (var fsObject in GetFsObject(_rootDir))
-                {
-                    if (fsObject is FileSystemInfo)
-                        OnEvent(FileFinded, new ItemFoundEventArgs<FileInfo>());
-                    else
-                        OnEvent(DirectoryFinded, new ItemFoundEventArgs<DirectoryInfo>());
-                    yield return fsObject;
-                }
-            }
-            else
-            {
-                foreach (var fsObject in GetFsObject(_rootDir))
+                currentAction = GenerateItemFoundEvent(fsObject, true);
+
+                if (_filter != null)
                 {
                     if (_filter(fsObject))
                     {
-                        if (fsObject is FileSystemInfo)
-                            OnEvent(FilteredFileFinded, new ItemFoundEventArgs<FileInfo>());
-                        else
-                            OnEvent(FilteredDirectoryFinded, new ItemFoundEventArgs<DirectoryInfo>());
+                        currentAction = GenerateItemFoundEvent(fsObject, false);
+                        if (currentAction == ActionToDo.StopSearch)
+                        {
+                            yield return fsObject;
+                            yield break;
+                        }
+                        if (currentAction == ActionToDo.SkipObject)
+                        {
+                            continue;
+                        }
                         yield return fsObject;
                     }
-                    else
-                        continue;
+                    else if (currentAction == ActionToDo.StopSearch)
+                    {
+                        yield break;
+                    }
+                    else continue;
                 }
+                else if (currentAction == ActionToDo.StopSearch)
+                {
+                    yield return fsObject;
+                    yield break;
+                }
+                if (currentAction == ActionToDo.SkipObject)
+                {
+                    continue;
+                }
+                yield return fsObject;
             }
+                      
             OnEvent(Finish, new FinishEventArgs());
         }
 
@@ -121,6 +110,42 @@ namespace FileSystemVisitor
                 foreach (var fsObject in GetFsObject(directoryInfo))
                     yield return fsObject;
             }
+        }
+
+        public ActionToDo GenerateItemFoundEvent(FileSystemInfo fsObject, bool beforeFilter)
+        {
+            var fileEventArg = new ItemFoundEventArgs<FileInfo>();
+            var directoryEventArg = new ItemFoundEventArgs<DirectoryInfo>();
+
+            if (fsObject is FileInfo)
+            {
+                if (beforeFilter)
+                {
+                    OnEvent(FileFinded, fileEventArg);
+                }
+                else
+                {
+                    OnEvent(FilteredFileFinded, fileEventArg);
+                }
+                return fileEventArg.action;
+            }
+            else
+            {
+                if (beforeFilter)
+                {
+                    OnEvent(DirectoryFinded, directoryEventArg);
+                }
+                else
+                {
+                    OnEvent(FilteredDirectoryFinded, directoryEventArg);
+                }
+                return directoryEventArg.action;
+            }
+        }
+
+        private void OnEvent<T>(EventHandler<T> Event, T args)
+        {
+            Event?.Invoke(this, args);
         }
     }     
 }

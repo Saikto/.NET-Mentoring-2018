@@ -1,10 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using FileSystemVisitor;
 
 namespace FileSystemVisitor
 {
@@ -16,11 +11,14 @@ namespace FileSystemVisitor
 
             FileSystemVisitor visitor = new FileSystemVisitor(path, file => file.Name.Contains("3"));
 
-            visitor.Start += Visitor_Start;
+            //visitor.Start += Visitor_Start;
 
+            visitor.FileFinded += Visitor_FileFinded;
             visitor.DirectoryFinded += Visitor_DirectoryFinded;
+            visitor.FilteredFileFinded += Visitor_FilteredFileFinded;
+            visitor.FilteredDirectoryFinded += Visitor_FilteredDirectoryFinded;
 
-            foreach (var i in visitor.GetFileSystemTree(ActionToDo.StopSearch))
+            foreach (var i in visitor.GetFileSystemTree())
             {
                 Console.WriteLine(i.Name);
             }
@@ -28,14 +26,25 @@ namespace FileSystemVisitor
             Console.ReadLine();
         }
 
-        private static void Visitor_DirectoryFinded(object sender, ItemFoundEventArgs<DirectoryInfo> e)
+        private static void Visitor_FileFinded(object sender, ItemFoundEventArgs<FileInfo> e)
         {
-            throw new NotImplementedException();
+            Console.WriteLine("Visitor_FileFinded");
         }
 
-        private static void Visitor_Start(object sender, StartEventArgs e)
+        private static void Visitor_DirectoryFinded(object sender, ItemFoundEventArgs<DirectoryInfo> e)
         {
-            Console.WriteLine("Search started!");
+            Console.WriteLine("Visitor_DirectoryFinded");
+        }
+
+        private static void Visitor_FilteredFileFinded(object sender, ItemFoundEventArgs<FileInfo> e)
+        {
+            Console.WriteLine("Visitor_FilteredFileFinded");
+            e.action = ActionToDo.StopSearch;
+        }
+
+        private static void Visitor_FilteredDirectoryFinded(object sender, ItemFoundEventArgs<DirectoryInfo> e)
+        {
+            Console.WriteLine("Visitor_FilteredDirectoryFinded");
         }
     }
 }
