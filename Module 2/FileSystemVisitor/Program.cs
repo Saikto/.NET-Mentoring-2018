@@ -29,17 +29,18 @@ namespace FileSystemVisitor
         private static void Visitor_FileFinded(object sender, ItemFoundEventArgs<FileInfo> e)
         {
             Console.WriteLine("Visitor_FileFinded");
+
         }
 
         private static void Visitor_DirectoryFinded(object sender, ItemFoundEventArgs<DirectoryInfo> e)
         {
             Console.WriteLine("Visitor_DirectoryFinded");
+            e.action = ActionToDo.StopSearch;
         }
 
         private static void Visitor_FilteredFileFinded(object sender, ItemFoundEventArgs<FileInfo> e)
         {
             Console.WriteLine("Visitor_FilteredFileFinded");
-            e.action = ActionToDo.StopSearch;
         }
 
         private static void Visitor_FilteredDirectoryFinded(object sender, ItemFoundEventArgs<DirectoryInfo> e)

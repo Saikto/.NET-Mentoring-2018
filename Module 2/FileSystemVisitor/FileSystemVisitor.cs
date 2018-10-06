@@ -18,19 +18,21 @@ namespace FileSystemVisitor
 
         public FileSystemVisitor(string rootPath)
         {
-            if (!Directory.Exists(rootPath))
-                throw new DirectoryNotFoundException(message: "Directory does not exists.");
-
-            _rootDir = new DirectoryInfo(rootPath);
+            InitRootDir(rootPath);
         }
 
         public FileSystemVisitor(string rootPath, Func<FileSystemInfo, bool> filter)
+        {
+            InitRootDir(rootPath);
+            _filter = filter;
+        }
+
+        private void InitRootDir(string rootPath)
         {
             if (!Directory.Exists(rootPath))
                 throw new DirectoryNotFoundException(message: "Directory does not exists.");
 
             _rootDir = new DirectoryInfo(rootPath);
-            _filter = filter;
         }
 
         public IEnumerable<FileSystemInfo> GetFileSystemTree()
@@ -43,40 +45,40 @@ namespace FileSystemVisitor
             {
                 currentAction = GenerateItemFoundEvent(fsObject, true);
 
-                if (_filter != null)
-                {
-                    if (_filter(fsObject))
-                    {
-                        currentAction = GenerateItemFoundEvent(fsObject, false);
-                        if (currentAction == ActionToDo.StopSearch)
-                        {
-                            yield return fsObject;
-                            yield break;
-                        }
-                        if (currentAction == ActionToDo.SkipObject)
-                        {
-                            continue;
-                        }
-                        yield return fsObject;
-                    }
-                    else if (currentAction == ActionToDo.StopSearch)
-                    {
-                        yield break;
-                    }
-                    else continue;
-                }
-                else if (currentAction == ActionToDo.StopSearch)
-                {
-                    yield return fsObject;
-                    yield break;
-                }
                 if (currentAction == ActionToDo.SkipObject)
                 {
                     continue;
                 }
-                yield return fsObject;
+                if (currentAction == ActionToDo.StopSearch)
+                {
+                    yield return fsObject;
+                    yield break;
+                }
+                if (currentAction == ActionToDo.Continue)
+                {
+                    if (_filter != null)
+                    {
+                        if (_filter(fsObject))
+                        {
+                            currentAction = GenerateItemFoundEvent(fsObject, false);
+                            if (currentAction == ActionToDo.SkipObject)
+                            {
+                                continue;
+                            }
+                            if (currentAction == ActionToDo.StopSearch)
+                            {
+                                yield return fsObject;
+                                yield break;
+                            }
+                            if (currentAction == ActionToDo.Continue)
+                                yield return fsObject;
+                        }
+                    }
+                    else
+                        yield return fsObject;
+                }
             }
-                      
+
             OnEvent(Finish, new FinishEventArgs());
         }
 
