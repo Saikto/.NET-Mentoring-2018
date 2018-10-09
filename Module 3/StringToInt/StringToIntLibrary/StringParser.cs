@@ -15,9 +15,9 @@ namespace StringToIntLibrary
             {
                 VerifyStringSymbols(inputString);
             }
-            catch (FormatException)
+            catch (FormatException ex)
             {
-                throw;
+                throw new FormatException(ex.Message);
             }
 
             int startPos;
