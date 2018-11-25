@@ -1,0 +1,1 @@
+mongo "mongodb+srv://netmentoring-l1xrn.mongodb.net/test" --username mentor --password mentor

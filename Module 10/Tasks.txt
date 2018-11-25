@@ -1,0 +1,102 @@
+﻿use taskdb
+db.createCollection('books');
+
+//Задание 1:
+db.books.insertMany([
+{
+	"name":"Hobbit",
+	"author":"Tolkien",
+	"count":5,
+	"genre":["fantasy"],
+	"year":2014
+},
+{
+	"name":"Lord of the rings",
+	"author":"Tolkien",
+	"count":3,
+	"genre":["fantasy"],
+	"year":2015
+},
+{
+	"name":"Kolobok",
+	"count":10,
+	"genre":["kids"],
+	"year":2000
+},
+{
+	"name":"Repka",
+	"count":11,
+	"genre":["kids"],
+	"year":2000
+},
+{
+	"name":"Dyadya Stiopa",
+	"author":"Mihalkov",
+	"count":1,
+	"genre":["kids"],
+	"year":2001
+}]);
+
+//Задание 2:
+//Пункт a-с:
+db.books.find(
+{
+	"count": { $gt: 1 }
+},
+{
+	_id:false,
+	name:true
+}).sort( { name: 1} ).limit(3);
+
+//Пункт d:
+db.books.find(
+{
+	"count": { $gt: 1 }
+},
+{
+	_id:false,
+	name:true
+}).sort( { name: 1} ).limit(3).count();
+
+//Задание 3:
+//MAX:
+db.books.find().sort( { count: -1 } ).limit(1);
+//MIN
+db.books.find().sort( { count: 1 } ).limit(1);
+
+//Задание 4:
+db.books.distinct( "author" );
+
+//Задание 5:
+db.books.find(
+{
+	author: { $exists: false }
+});
+
+//Задание 6:
+db.books.updateMany(
+{}, 
+{
+	$inc: { count: 1 }
+});
+
+//Задание 7:
+db.books.updateMany(
+{ 
+	genre: 
+	{ 
+		$all: ["fantasy"] 
+	}
+}, 
+{
+	$addToSet: { genre: "favority" }
+});
+
+//Задание 8:
+db.books.deleteMany(
+{
+	count: { $lt: 3}
+});
+
+//Задание 9:
+db.books.deleteMany({});
